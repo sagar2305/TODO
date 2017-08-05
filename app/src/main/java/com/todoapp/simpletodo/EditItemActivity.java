@@ -22,6 +22,7 @@ public class EditItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_item);
 
         editTextView = (EditText) findViewById(R.id.editTextView);
+        editTextView.setText("");
 
         Intent intent = getIntent();
         if (intent.hasExtra(ITEMTOEDIT)) {
@@ -30,10 +31,11 @@ public class EditItemActivity extends AppCompatActivity {
             editTextView.setSelection(editTextView.getText().length());
         }
         if (intent.hasExtra(INDEX)) {
-            index = intent.getIntExtra(INDEX, 0);
+            index = intent.getIntExtra(INDEX, -1);
         }
     }
 
+    //save the edited item
     public void onEditSaved(View v) {
         Intent data = new Intent();
 

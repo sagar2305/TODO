@@ -79,9 +79,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             String item = data.getExtras().getString(EDITEDITEM);
-            int index = data.getExtras().getInt(INDEX, 0);
+            int index = data.getExtras().getInt(INDEX, -1);
 
-            if (items.size() > index) {
+            if (index > 0 && items.size() > index) {
                 items.set(index, item);
             }
             itemsAdapter.notifyDataSetChanged();
