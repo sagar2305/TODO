@@ -1,5 +1,6 @@
 package com.todoapp.simpletodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,6 +16,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final int REQUEST_CODE = 20;
+
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvlItems;
@@ -54,6 +58,31 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        lvlItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
+                intent.putExtra("textToEdit", items.get(i));
+                intent.putExtra("index", i);
+                startActivityForResult(intent, REQUEST_CODE);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            String item = data.getExtras().getString("item");
+            int index = data.getExtras().getInt("index", 0);
+
+            if (items.size() > index) {
+                items.set(index, item);
+            }
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+        }
     }
 
     //read items from file
