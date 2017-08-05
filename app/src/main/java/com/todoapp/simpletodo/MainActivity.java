@@ -15,6 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static com.todoapp.simpletodo.Constants.EDITEDITEM;
+import static com.todoapp.simpletodo.Constants.INDEX;
+import static com.todoapp.simpletodo.Constants.ITEMTOEDIT;
+
 public class MainActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20;
@@ -63,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-                intent.putExtra("textToEdit", items.get(i));
-                intent.putExtra("index", i);
+                intent.putExtra(ITEMTOEDIT, items.get(i));
+                intent.putExtra(INDEX, i);
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
@@ -74,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            String item = data.getExtras().getString("item");
-            int index = data.getExtras().getInt("index", 0);
+            String item = data.getExtras().getString(EDITEDITEM);
+            int index = data.getExtras().getInt(INDEX, 0);
 
             if (items.size() > index) {
                 items.set(index, item);

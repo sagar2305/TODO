@@ -6,6 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 
+import static com.todoapp.simpletodo.Constants.EDITEDITEM;
+import static com.todoapp.simpletodo.Constants.INDEX;
+import static com.todoapp.simpletodo.Constants.ITEMTOEDIT;
+
 public class EditItemActivity extends AppCompatActivity {
 
     EditText editTextView;
@@ -20,21 +24,21 @@ public class EditItemActivity extends AppCompatActivity {
         editTextView = (EditText) findViewById(R.id.editTextView);
 
         Intent intent = getIntent();
-        if (intent.hasExtra("textToEdit")) {
-            textToEdit = intent.getStringExtra("textToEdit");
+        if (intent.hasExtra(ITEMTOEDIT)) {
+            textToEdit = intent.getStringExtra(ITEMTOEDIT);
             editTextView.setText(textToEdit);
             editTextView.setSelection(editTextView.getText().length());
         }
-        if (intent.hasExtra("index")) {
-            index = intent.getIntExtra("index", 0);
+        if (intent.hasExtra(INDEX)) {
+            index = intent.getIntExtra(INDEX, 0);
         }
     }
 
     public void onEditSaved(View v) {
         Intent data = new Intent();
 
-        data.putExtra("item", editTextView.getText().toString());
-        data.putExtra("index", index);
+        data.putExtra(EDITEDITEM, editTextView.getText().toString());
+        data.putExtra(INDEX, index);
 
         setResult(RESULT_OK, data);
         finish();
