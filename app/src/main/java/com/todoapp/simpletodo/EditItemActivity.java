@@ -13,7 +13,7 @@ import static com.todoapp.simpletodo.Constants.ITEMTOEDIT;
 public class EditItemActivity extends AppCompatActivity {
 
     EditText editTextView;
-    String textToEdit;
+    Task task;
     int index = -1;
 
     @Override
@@ -26,8 +26,8 @@ public class EditItemActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent.hasExtra(ITEMTOEDIT)) {
-            textToEdit = intent.getStringExtra(ITEMTOEDIT);
-            editTextView.setText(textToEdit);
+            task = intent.getParcelableExtra(ITEMTOEDIT);
+            editTextView.setText(task.name);
             editTextView.setSelection(editTextView.getText().length());
         }
         if (intent.hasExtra(INDEX)) {
@@ -39,7 +39,9 @@ public class EditItemActivity extends AppCompatActivity {
     public void onEditSaved(View v) {
         Intent data = new Intent();
 
-        data.putExtra(EDITEDITEM, editTextView.getText().toString());
+        task.name = editTextView.getText().toString();
+
+        data.putExtra(EDITEDITEM, task);
         data.putExtra(INDEX, index);
 
         setResult(RESULT_OK, data);

@@ -5,14 +5,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static com.todoapp.simpletodo.Constants.EDITEDITEM;
@@ -23,21 +18,25 @@ public class MainActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20;
 
-    ArrayList<String> items;
-    ArrayAdapter<String> itemsAdapter;
+    ArrayList<Task> tasks;
+    TasksAdapter tasksAdapter;
     ListView lvlItems;
+    DatabaseHelper db;
+
+    static int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         lvlItems = (ListView)findViewById(R.id.lvlItems);
+        db = new DatabaseHelper(this);
 
         //add existing items
-        readItems();
+        tasks = tasksFromDB();
 
-        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-        lvlItems.setAdapter(itemsAdapter);
+        tasksAdapter = new TasksAdapter(this, tasks);
+        lvlItems.setAdapter(tasksAdapter);
 
         //setup list view listener
         setupListViewListener();
@@ -46,19 +45,24 @@ public class MainActivity extends AppCompatActivity {
     //handle add item button click
     public void onAddItem(View v) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
+
         String itemText = etNewItem.getText().toString();
-        itemsAdapter.add(itemText);
+        Task task = new Task(counter++, itemText);
+
+        tasksAdapter.add(task);
         etNewItem.setText("");
-        writeItems();
+        writeItem(task);
     }
 
     private void setupListViewListener() {
         lvlItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                items.remove(i);
-                itemsAdapter.notifyDataSetChanged();
-                writeItems();
+                Task task = tasks.get(i);
+                tasks.remove(task);
+                db.deleteTask(task);
+
+                tasksAdapter.notifyDataSetChanged();
                 return true;
             }
         });
@@ -67,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, EditItemActivity.class);
-                intent.putExtra(ITEMTOEDIT, items.get(i));
+                intent.putExtra(ITEMTOEDIT, tasks.get(i));
                 intent.putExtra(INDEX, i);
                 startActivityForResult(intent, REQUEST_CODE);
             }
@@ -78,36 +82,25 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            String item = data.getExtras().getString(EDITEDITEM);
+            Task task = data.getExtras().getParcelable(EDITEDITEM);
             int index = data.getExtras().getInt(INDEX, -1);
 
-            if (index > 0 && items.size() > index) {
-                items.set(index, item);
+            if (index >= 0 && tasks.size() > index) {
+                tasks.set(index, task);
             }
-            itemsAdapter.notifyDataSetChanged();
-            writeItems();
+            tasksAdapter.notifyDataSetChanged();
+            db.updateTask(task);
         }
     }
 
-    //read items from file
-    private void readItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
-        } catch (IOException e) {
-            items = new ArrayList<String>();
-        }
+    //read items from DB
+    private ArrayList<Task> tasksFromDB() {
+        ArrayList<Task> tasks = db.getAllTasks();
+        return tasks;
     }
 
-    //write items to file
-    private void writeItems() {
-        File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
-        try {
-            FileUtils.writeLines(todoFile, items);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    //write item to DB
+    private void writeItem(Task task) {
+        db.addTask(task);
     }
 }
