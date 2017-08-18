@@ -11,20 +11,13 @@ import java.util.Date;
 
 public class Task implements Parcelable {
 
-    int id;
-    String name;
-    Date dueDate;
+    private int id;
+    private String name;
+    private Date dueDate;
 
     public Task(int id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    //due date for future versions
-    public Task(int id, String name, Date date) {
-        this.id = id;
-        this.name = name;
-        this.dueDate = date;
     }
 
     public int getID() {

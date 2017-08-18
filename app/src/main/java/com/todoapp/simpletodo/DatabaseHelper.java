@@ -6,7 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by SagarMutha on 8/13/17.
@@ -22,6 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Table columns
     private static final String KEY_ID = "id";
     private static final String KEY_NAME = "name";
+    private static final String KEY_DATE = "date";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,7 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         String CREATE_TABLE = "CREATE TABLE " + TABLE_TASKS + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT" + ")";
+                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT," + KEY_DATE + " TEXT" + ")";
         database.execSQL(CREATE_TABLE);
     }
 
@@ -50,24 +54,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, task.getName());
 
+        String format = "yyyy-MM-dd";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+
+        String date = "";
+        if (task.getDueDate() != null) {
+            date = sdf.format(task.getDueDate());
+        }
+        values.put(KEY_DATE, date);
+
         db.insert(TABLE_TASKS, null, values);
         db.close();
-    }
-
-    // Getting single task
-    Task getTask(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TABLE_TASKS, new String[] { KEY_ID,
-                        KEY_NAME }, KEY_ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        Task task = new Task(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1));
-        // return task
-        return task;
     }
 
     // Getting All Tasks
@@ -80,14 +77,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                if (cursor.getCount() > 1) {
-                    int id = Integer.parseInt(cursor.getString(0));
-                    String name = cursor.getString(1);
-                    Task task = new Task(id, name);
+                int id = Integer.parseInt(cursor.getString(0));
+                String name = cursor.getString(1);
+                Task task = new Task(id, name);
 
-                    //add task to the list
-                    taskList.add(task);
+                String date = cursor.getString(2);
+                String format = "yyyy-MM-dd";
+                SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+
+                try {
+                    task.setDueDate(sdf.parse(date));
+                } catch (ParseException pe) {
+
                 }
+
+                //add task to the list
+                taskList.add(task);
+
             } while (cursor.moveToNext());
         }
 
@@ -101,6 +107,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(KEY_NAME, task.getName());
 
+        String format = "yyyy-MM-dd";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+        String date = sdf.format(task.getDueDate());
+        values.put(KEY_DATE, date);
+
         // update row
         return db.update(TABLE_TASKS, values, KEY_ID + " = ?",
                 new String[] { String.valueOf(task.getID()) });
@@ -112,16 +123,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_TASKS, KEY_ID + " = ?",
                 new String[] { String.valueOf(task.getID()) });
         db.close();
-    }
-
-    // Get tasks count
-    public int getTasksCount() {
-        String countQuery = "SELECT  * FROM " + TABLE_TASKS;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.close();
-
-        // return count
-        return cursor.getCount();
     }
 }
