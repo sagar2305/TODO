@@ -14,6 +14,7 @@ public class Task implements Parcelable {
     private int id;
     private String name;
     private Date dueDate;
+    private boolean completed;
 
     public Task(int id, String name) {
         this.id = id;
@@ -42,6 +43,14 @@ public class Task implements Parcelable {
 
     public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     @Override

@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         tasksAdapter = new TasksAdapter(this, tasks);
         lvlItems.setAdapter(tasksAdapter);
+        lvlItems.setItemsCanFocus(true);
 
         //setup list view listener
         setupListViewListener();
@@ -45,13 +46,15 @@ public class MainActivity extends AppCompatActivity {
     //handle add item button click
     public void onAddItem(View v) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
-
         String itemText = etNewItem.getText().toString();
-        Task task = new Task(counter++, itemText);
 
-        tasksAdapter.add(task);
-        etNewItem.setText("");
-        writeItem(task);
+        if (!itemText.trim().isEmpty()) {
+            Task task = new Task(counter++, itemText);
+
+            tasksAdapter.add(task);
+            etNewItem.setText("");
+            writeItem(task);
+        }
     }
 
     private void setupListViewListener() {
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 tasks.set(index, task);
             }
             tasksAdapter.notifyDataSetChanged();
-            db.updateTask(task);
+            updateTask(task);
         }
     }
 
@@ -97,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Task> tasksFromDB() {
         ArrayList<Task> tasks = db.getAllTasks();
         return tasks;
+    }
+
+    public void updateTask(Task task) {
+        db.updateTask(task);
     }
 
     //write item to DB

@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -26,6 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_ID = "id";
     private static final String KEY_NAME = "name";
     private static final String KEY_DATE = "date";
+    private static final String KEY_COMPLETED = "completed";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         String CREATE_TABLE = "CREATE TABLE " + TABLE_TASKS + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT," + KEY_DATE + " TEXT" + ")";
+                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT," + KEY_DATE + " TEXT," + KEY_COMPLETED + " INTEGER DEFAULT 0)";
         database.execSQL(CREATE_TABLE);
     }
 
@@ -90,6 +92,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 } catch (ParseException pe) {
 
                 }
+                boolean isCompleted = (cursor.getInt(3) == 1);
+                task.setCompleted(isCompleted);
 
                 //add task to the list
                 taskList.add(task);
@@ -109,8 +113,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String format = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
-        String date = sdf.format(task.getDueDate());
-        values.put(KEY_DATE, date);
+
+        Date date = task.getDueDate();
+        if (date != null) {
+            String dateStr = sdf.format(date);
+            values.put(KEY_DATE, dateStr);
+        }
+
+        int isComplete = (task.isCompleted()) ? 1 : 0;
+        values.put(KEY_COMPLETED, isComplete);
 
         // update row
         return db.update(TABLE_TASKS, values, KEY_ID + " = ?",
