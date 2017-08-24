@@ -91,8 +91,8 @@ public class MainActivity extends AppCompatActivity {
             if (index >= 0 && tasks.size() > index) {
                 tasks.set(index, task);
             }
-            tasksAdapter.notifyDataSetChanged();
             updateTask(task);
+            tasksAdapter.notifyDataSetChanged();
         }
     }
 

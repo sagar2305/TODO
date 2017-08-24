@@ -52,7 +52,6 @@ public class TasksAdapter extends ArrayAdapter implements CompoundButton.OnCheck
             checkBoxTaskComplete.setChecked(false);
         }
 
-        dueDateTextView.setText("");
         if (task.getDueDate() != null) {
             String myFormat = "EEE, MMM d";
 
@@ -62,6 +61,8 @@ public class TasksAdapter extends ArrayAdapter implements CompoundButton.OnCheck
 
             SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
             dueDateTextView.setText(sdf.format(task.getDueDate()));
+        } else {
+            dueDateTextView.setText("");
         }
 
         return convertView;

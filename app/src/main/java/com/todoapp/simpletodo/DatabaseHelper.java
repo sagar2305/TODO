@@ -65,7 +65,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         values.put(KEY_DATE, date);
 
-        db.insert(TABLE_TASKS, null, values);
+        int isComplete = task.isCompleted() ? 1 : 0;
+        values.put(KEY_COMPLETED, isComplete);
+
+        int id = (int)db.insert(TABLE_TASKS, null, values);
+        task.setID(id);
+
         db.close();
     }
 
@@ -120,7 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_DATE, dateStr);
         }
 
-        int isComplete = (task.isCompleted()) ? 1 : 0;
+        int isComplete = task.isCompleted() ? 1 : 0;
         values.put(KEY_COMPLETED, isComplete);
 
         // update row
